@@ -137,7 +137,7 @@ public class Sleeper
         }
     }
     /// <summary>
-    /// returns current os as Platform struct
+    /// returns current os
     /// </summary>
     /// <returns></returns>
     public static Platform GetCurrentOS()
@@ -146,7 +146,7 @@ public class Sleeper
     }
 
     /// <summary>
-    /// return current os as string
+    /// returns current os as string
     /// </summary>
     /// <returns></returns>
     public static string GetCurrentOSString()
