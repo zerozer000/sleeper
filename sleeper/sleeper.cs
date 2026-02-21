@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Renci.SshNet;
 
 namespace sleeper;
 
@@ -28,12 +30,9 @@ public class Sleeper
     public static List<Device> Devices = new();
     public struct Device
     {
-        public int Id;
         public string Name;
         public string Description;
         public Platform Platform;
-
-        public bool IsActive;
 
         //for ssh
         public string ip;
@@ -60,14 +59,44 @@ public class Sleeper
         //shutdown command for linux
         if (device.Platform == Platform.Linux)
         {
-            Process.Start("ssh", $"-p \"{device.password}\" {device.user}@{device.ip} \"shutdown now\"");
+            var c = new SshClient(device.ip, device.user, device.password);
+            try
+            {
+                using (c)
+                {
+                    c.Connect();
+                    ShellStream shells = c.CreateShellStream("sleeper", 80, 24, 800, 600, 1024);
+                    //var r = c.CreateCommand("shutdown now");
+                    using SshCommand cmd = c.RunCommand($"echo \"{device.password}\"| sudo -S shutdown now");
+
+                    c.Disconnect();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error : {e.Message}");
+            }
+
+            Devices.Remove(device);
         }
         //shutdown command for windows
         if (device.Platform == Platform.Windows)
         {
-            Process.Start("ssh", $"-p \"{device.password}\" {device.user}@{device.ip} \"shutdown /s /t 0\"");
+            /*
+            try
+            {
+
+            }
+            catch( Exception e )
+            {
+
+            }
+            */
+            Console.WriteLine("sorry, no windows support yet :(");
+            //Devices.Remove(device);
         }
-        Devices.Remove(device);
+        
+        
 
         if (AlsoShutdownThisDevice == true)
         {
@@ -75,14 +104,38 @@ public class Sleeper
         }
     }
 
-    public static void CreateNewDevice(string name, string description, Platform platform, string ip, int port, string user, string password)
+    public static Device CreateNewDevice(string name, string description, Platform platform, string ip, int port, string user, string password)
     {
-        Device device = new Device();
+        Device d = new Device();
 
+        d.Name = name;
+        d.Description = description;
 
-        Devices.Add(device);
+        d.ip = ip;
+        d.user = user;
+        d.password = password;
+        d.Platform = platform;
+        d.port = port;
+
+        Devices.Add(d);
+
+        return d;
     }
 
+    /// <summary>
+    /// shuting down current device
+    /// </summary>
+    public static void ShutdownThisDevice()
+    {
+        if (CurrentOs == Platform.Windows)
+        {
+            Process.Start("rundll32.exe", $"powrprof.dll,SetSuspendState 0,1,0");
+        }
+        if (CurrentOs == Platform.Linux)
+        {
+            Console.WriteLine("sorry, no linux support yet :(");
+        }
+    }
     /// <summary>
     /// returns current os as Platform struct
     /// </summary>
@@ -109,6 +162,25 @@ public class Sleeper
 
         return toreturn;
     }
+
+    public static bool AskConfirm()
+    {
+        Console.Write("Are you sure? [y / n] : ");
+        bool r = false;
+
+        string line = Console.ReadLine().ToLower();
+        if (line == "y")
+        {
+            r = true;
+        }
+        else
+        {
+            r = false;
+        }
+
+        return r;
+    }
+    //config
     public class Config
     {
         public bool AlsoShutdownThisDevice {  get; set; }
