@@ -1,5 +1,14 @@
 # sleeper
+A program to remote shutdown devices with ssh.
 
+## Supported devices
+- Linux
+- Windows
+### Devices that you can shutdown
+- Linux
+
+
+# Building instructions
 ### How to build
 - Run `build-scripts/build/release.bat` for windows, `build-scripts/build/release.sh` for linux.
 
