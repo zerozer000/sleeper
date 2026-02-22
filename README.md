@@ -1,5 +1,5 @@
 # sleeper
-A program to remote shutdown devices with ssh.
+A program that access remote shutdown devices with ssh.
 
 ## Supported devices
 - Linux
