@@ -15,3 +15,4 @@ A program that access remote shutdown devices with ssh.
 ### How to publish
 - For windows run : `build-scripts/publish/win/win.bat` or `build-scripts/publish/win/win.sh`.
 - For linux run : `build-scripts/publish/linux/linux.bat` or `build-scripts/publish/linux/linux.sh`.
+- Also publish output will building in build output directory (i dont know how to fix it).
