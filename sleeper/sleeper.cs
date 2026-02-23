@@ -1,8 +1,14 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Asn1.Pkcs;
+using Renci.SshNet;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
-using Renci.SshNet;
+using System.Text.Json;
+using System.Xml.Linq;
+using static sleeper.Sleeper;
 
 namespace sleeper;
 
@@ -80,7 +86,7 @@ public class Sleeper
             Devices.Remove(device);
         }
         //shutdown command for windows
-        if (device.Platform == Platform.Windows)
+        else if (device.Platform == Platform.Windows)
         {
             /*
             try
@@ -95,6 +101,10 @@ public class Sleeper
             Console.WriteLine("sorry, no windows support yet :(");
             //Devices.Remove(device);
         }
+        else if (device.Platform == Platform.Unknown)
+            Console.WriteLine("Unknown device platform : " + device.Platform);
+        else
+            Console.WriteLine("Unknown device platform : " + device.Platform);
         
         
 
@@ -163,12 +173,12 @@ public class Sleeper
         return toreturn;
     }
 
-    public static bool AskConfirm()
+    public static bool AskConfirmMsg(string msg)
     {
-        Console.Write("Are you sure? [y / n] : ");
+        Console.Write($"{msg} [y / n] : ");
         bool r = false;
 
-        string line = Console.ReadLine().ToLower();
+        string line = Console.ReadLine()!.ToLower();
         if (line == "y")
         {
             r = true;
@@ -180,9 +190,24 @@ public class Sleeper
 
         return r;
     }
-    //config
-    public class Config
+    public static bool AskConfirm()
     {
-        public bool AlsoShutdownThisDevice {  get; set; }
+        return AskConfirmMsg("Are you sure?");
     }
+
+    public static Platform GetPlatformFromString(string str)
+    {
+        if (string.IsNullOrWhiteSpace(str)) return Platform.Unknown;
+        else if(str == "win") return Platform.Windows;
+        else if (str == "linux") return Platform.Linux;
+        else return Platform.Unknown;
+    }
+    public static string ConvertPlatformToString(Platform platform)
+    {
+        if (platform == Platform.Unknown) return "unknown";
+        else if (platform == Platform.Windows) return "win";
+        else if (platform == Platform.Linux) return "linux";
+        else return "unknown";
+    }
+    
 }

@@ -1,6 +1,7 @@
 ﻿using sleeper;
 using System.Linq;
 using System;
+using System.Collections.Generic;
 
 namespace sleeper_app;
 
@@ -37,10 +38,19 @@ public class MainClass
                     //Console.WriteLine($"{args[arg.Index+1]}, {args[arg.Index + 2]}, {args[arg.Index + 3]}"); // test showing
                     Funcs.ShutdownNew(args[arg.Index+1], args[arg.Index + 2], args[arg.Index + 3], Sleeper.Platform.Linux);
                 }
+                else if (arg.Value == "shutdown")
+                {
+
+                    Funcs.ShutdownByName(args[arg.Index + 1]);
+                }
                 else if (arg.Value == "new")
                 {
                     // new device
-                    Console.WriteLine("still in work! (nothing happen)");
+
+                    Sleeper.Device devicetoadd = Sleeper.CreateNewDevice(args[arg.Index + 1], args[arg.Index + 2],
+                        Sleeper.GetPlatformFromString(args[arg.Index + 3]),
+                        args[arg.Index + 4], int.Parse(args[arg.Index + 5]), args[arg.Index + 6], args[arg.Index + 7]);
+                    sleeper.Json.AddDevice(devicetoadd, $"{AppContext.BaseDirectory}/devices.json");
                 }
                 else if (arg.Value == "remove")
                 {
@@ -53,8 +63,9 @@ public class MainClass
                     {
                         Sleeper.ShutdownThisDevice();
                     }
-                        
-
+                }
+                else if (arg.Value == "test")
+                {
 
                 }
                 /*
